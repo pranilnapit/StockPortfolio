@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Portfolio</title>
+</head>
+<body>
+    {% extends "base.html" %}
+
+    {% block content %}
+    <h2>Your Portfolio</h2>
+
+    <table>
+        <tr>
+            <th>Stock</th>
+            <th>Date Bought</th>
+            <th>Buy Price</th>
+            <th>Quantity</th>
+            <th>Current Price</th>
+            <th>P/L</th>
+            <th>Chart</th>
+        </tr>
+
+        {% for row in rows %}
+        <tr>
+            <td>{{ row.stockName }}</td>
+            <td>{{ row.buyDate }}</td>
+            <td>{{ row.price_bought }}</td>
+            <td>{{ row.quantity }}</td>
+            <td>
+                {% if row.current_price %}
+                    {{ row.current_price }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td>
+                {% if row.profit %}
+                    {{ "%.2f"|format(row.profit) }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td><a href="/stock/{{ row.stockName }}">View</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% endblock %}
+
+</body>
+</html>
