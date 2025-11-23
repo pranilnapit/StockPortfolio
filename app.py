@@ -25,26 +25,36 @@ def get_price_today(ticker):
 
 @app.route('/')
 def portfolio():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+#     conn = get_db_connection()
+#     cursor = conn.cursor()
     
-    cursor.execute("SELECT * FROM portfolio")
-    rows = cursor.fetchall()
+#     cursor.execute("SELECT * FROM portfolio")
+#     rows = cursor.fetchall()
     
-    for row in rows:
-        try:
-            row['current_price'] = get_price_today(row['stockName'])
-            row['total_cost'] = float(row['current_price']) * int(row['quantity'])
-            row['total_value'] = float(row['buyPrice']) * int(row['quantity'])
-            row['profit_loss'] = row['total_cost'] - row['total_value']
-        except Exception as e:
-            row['current_price'] = None
-            row['total_cost'] = None
-            row['total_value'] = None
-            row['profit_loss'] = None
+#     for row in rows:
+#         try:
+#             row['current_price'] = get_price_today(row['stockName'])
+#             row['total_cost'] = float(row['current_price']) * int(row['quantity'])
+#             row['total_value'] = float(row['buyPrice']) * int(row['quantity'])
+#             row['profit_loss'] = row['total_cost'] - row['total_value']
+#         except Exception as e:
+#             row['current_price'] = None
+#             row['total_cost'] = None
+#             row['total_value'] = None
+#             row['profit_loss'] = None
         
+#     conn.close()
+#     return render_template('portfolio.html', stocks=rows)
+
+    conn = get_db_connection()
+    cursor = conn.cursor() # Create a cursor object
+    
+    cursor.execute("Select * from portfolio") # Execute a query
+    rows = cursor.fetchall() # Fetch all results
+    
+    cursor.close()
     conn.close()
-    return render_template('portfolio.html', stocks=rows)
+    return render_template('stocks.html', rows=rows)
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_stock():

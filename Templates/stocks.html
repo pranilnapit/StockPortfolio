@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Added Stocks</title>
+</head>
+<body>
+    <table>
+    <thead>
+        <tr>
+            {% for col in rows[0].keys() %}
+                <th>{{ col }}</th>
+            {% endfor %}
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            {% for value in row.values() %}
+                <td>{{ value }}</td>
+            {% endfor %}
+            <td>
+                <form action="/editEntry" method="GET" style="display:inline;">
+                    <input type="hidden" name="id" value="{{ row['id'] }}">
+                    <button type="submit">Edit</button>
+                </form>
+
+
+                <form action="/removeEntry" method="POST" style="display:inline;">
+                    <input type="hidden" name="id" value="{{ row['id'] }}">
+                    <button type="submit">Delete</button>
+                </form>
+        </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+    
+</body>
+</html>
