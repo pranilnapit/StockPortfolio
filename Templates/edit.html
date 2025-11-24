@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit</title>
+</head>
+<body>
+
+    <h1>Edit Stock</h1>
+    <form method="POST">
+        <input type="hidden" name="id" value="{{ stock.id }}">
+
+        <label>Stock:</label><br>
+        <input type="text" name="stockName" value="{{ stock.stockName }}"><br><br>
+
+        <label>Date Bought:</label><br>
+        <input type="date" name="buyDate" value="{{ stock.buyDate }}"><br><br>
+
+        <label>Shares</label>
+        <input type="number" name="quantity" value="{{ stock.quantity }}"><br><br>
+
+        <label>Buy Price:</label><br>
+        <input type="number" step="0.01" name="buyPrice" value="{{ stock.buyPrice }}"><br><br>
+        <button type="submit">Update</button>        
+    </form>
+</body>
+</html>

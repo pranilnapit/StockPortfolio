@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Added Stocks</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <h1>Stocks</h1>
+    <a href="/add">
+        <button type="button">Add New Stock</button>
+    </a>
     <table>
     <thead>
         <tr>
@@ -22,13 +27,13 @@
                 <td>{{ value }}</td>
             {% endfor %}
             <td>
-                <form action="/editEntry" method="GET" style="display:inline;">
+                <form action="/edit" method="GET" style="display:inline;">
                     <input type="hidden" name="id" value="{{ row['id'] }}">
                     <button type="submit">Edit</button>
                 </form>
 
 
-                <form action="/removeEntry" method="POST" style="display:inline;">
+                <form action="/delete" method="POST" style="display:inline;">
                     <input type="hidden" name="id" value="{{ row['id'] }}">
                     <button type="submit">Delete</button>
                 </form>
