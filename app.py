@@ -15,38 +15,6 @@ def get_db_connection():
         database='stockportfolio',
         cursorclass=pymysql.cursors.DictCursor # To return results as dictionaries
     )
-    
-# class Stock:
-#     def __init__(self, stockName, buyDate, quantity, buyPrice):
-#         self.stockName = stockName
-#         self.buyDate = buyDate
-#         self.quantity = quantity
-#         self.buyPrice = buyPrice
-        
-#     @classmethod
-#     def get_all_stocks(cls):
-#         conn = get_db_connection()
-#         cursor = conn.cursor()
-#         cursor.execute("SELECT * FROM portfolio")
-#         rows = cursor.fetchall()
-#         cursor.close()
-#         conn.close()
-#         return rows
-    
-#     def new_entry(self):
-#         conn = get_db_connection()
-#         cursor = conn.cursor()
-#         insert_query = """
-#             INSERT INTO portfolio 
-#             (stockName, buyDate, quantity, buyPrice)
-#             VALUES (%s, %s, %s, %s)
-#         """
-        
-#         data = (self.stockName, self.buyDate, self.quantity, self.buyPrice)
-#         cursor.execute(insert_query, data)
-#         conn.commit()
-#         cursor.close()
-#         conn.close()
 
 @app.route('/')
 def home():
