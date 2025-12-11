@@ -16,89 +16,42 @@ def get_db_connection():
         cursorclass=pymysql.cursors.DictCursor # To return results as dictionaries
     )
     
-class Stock:
-    def __init__(self, stockName, buyDate, quantity, buyPrice):
-        self.stockName = stockName
-        self.buyDate = buyDate
-        self.quantity = quantity
-        self.buyPrice = buyPrice
+# class Stock:
+#     def __init__(self, stockName, buyDate, quantity, buyPrice):
+#         self.stockName = stockName
+#         self.buyDate = buyDate
+#         self.quantity = quantity
+#         self.buyPrice = buyPrice
         
-    @classmethod
-    def get_all_stocks(cls):
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM portfolio")
-        rows = cursor.fetchall()
-        cursor.close()
-        conn.close()
-        return rows
+#     @classmethod
+#     def get_all_stocks(cls):
+#         conn = get_db_connection()
+#         cursor = conn.cursor()
+#         cursor.execute("SELECT * FROM portfolio")
+#         rows = cursor.fetchall()
+#         cursor.close()
+#         conn.close()
+#         return rows
     
-    def new_entry(self):
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        insert_query = """
-            INSERT INTO portfolio 
-            (stockName, buyDate, quantity, buyPrice)
-            VALUES (%s, %s, %s, %s)
-        """
+#     def new_entry(self):
+#         conn = get_db_connection()
+#         cursor = conn.cursor()
+#         insert_query = """
+#             INSERT INTO portfolio 
+#             (stockName, buyDate, quantity, buyPrice)
+#             VALUES (%s, %s, %s, %s)
+#         """
         
-        data = (self.stockName, self.buyDate, self.quantity, self.buyPrice)
-        cursor.execute(insert_query, data)
-        conn.commit()
-        cursor.close()
-        conn.close()
-    
-# Function to get today's stock price
-# def get_price_today(ticker):
-#     stock = yf.Ticker(ticker)
-#     todays_data = stock.history(period='1d')
-#     if not todays_data.empty:
-#         return todays_data['Close'].iloc[0]
-#     return None
-
+#         data = (self.stockName, self.buyDate, self.quantity, self.buyPrice)
+#         cursor.execute(insert_query, data)
+#         conn.commit()
+#         cursor.close()
+#         conn.close()
 
 @app.route('/')
 def home():
-# First version
-# ------------------------------------------------------
-#     conn = get_db_connection()
-#     cursor = conn.cursor()
-    
-#     cursor.execute("SELECT * FROM portfolio")
-#     rows = cursor.fetchall()
-    
-#     for row in rows:
-#         try:
-#             row['current_price'] = get_price_today(row['stockName'])
-#             row['total_cost'] = float(row['current_price']) * int(row['quantity'])
-#             row['total_value'] = float(row['buyPrice']) * int(row['quantity'])
-#             row['profit_loss'] = row['total_cost'] - row['total_value']
-#         except Exception as e:
-#             row['current_price'] = None
-#             row['total_cost'] = None
-#             row['total_value'] = None
-#             row['profit_loss'] = None
-        
-#     conn.close()
-#     return render_template('portfolio.html', stocks=rows)
-# ------------------------------------------------------
-# Second version
-# ------------------------------------------------------
-    # conn = get_db_connection()
-    # cursor = conn.cursor() # Create a cursor object
-    
-    # cursor.execute("Select * from portfolio") # Execute a query
-    # rows = cursor.fetchall() # Fetch all results
-    
-    # cursor.close()
-    # conn.close()
-    
-# ------------------------------------------------------
-# Using the class method to get all stocks
-
     if "user_id" in session:
-        rows = Stock.get_all_stocks()
-        return render_template('stocks.html', rows=rows)
+        return render_template('dashboard.html')
     
     return redirect(url_for('login'))
 
@@ -153,12 +106,14 @@ def dashboard():
     if 'user_id' not in session:
         return redirect(url_for('login'))
     
-    rows = Stock.get_all_stocks()
     conn = get_db_connection()
+    cursor = conn.cursor()
     
-    investments = conn.execute("SELECT * FROM investments where user_id = %s", (session['user_id'],)).fetchall()
+    cursor.execute("SELECT * FROM investments where user_id = %s", (session['user_id'],))
+    investments = cursor.fetchall()
     
-    total_value, total_cost = 0
+    total_value = 0 
+    total_cost = 0
     
     updated_investments = []
     for inv in investments:
@@ -188,96 +143,73 @@ def dashboard():
         
     profit_loss = total_value - total_cost
         
-    return render_template('dashboard.html', rows=rows, investments=updated_investments, total_value=round(total_value,2), total_cost=round(total_cost,2), profit_loss=round(profit_loss,2))
+    return render_template('dashboard.html', investments=updated_investments, total_value=round(total_value,2), total_cost=round(total_cost,2), profit_loss=round(profit_loss,2))
 
 
-@app.route('/add', methods=['GET', 'POST'])
-def add_stock():
+@app.route('/add_investment', methods=['GET', 'POST'])
+def add_investment():
+    if "user_id" not in session:
+        return redirect(url_for('login'))
     
-    # First version
-    # ------------------------------------------------------
-    # if request.method == 'POST':
-    #     stockName = request.form['stockName'].upper()
-    #     buyDate = request.form['buyDate']
-    #     quantity = int(request.form['quantity'])
-    #     buyPrice = request.form['buyPrice']
-        
-    #     conn = get_db_connection()
-    #     cursor = conn.cursor()
-        
-    #     query = """
-    #         INSERT INTO portfolio (stockName, buyDate, quantity, buyPrice)
-    #         VALUES (%s, %s, %s, %s)
-    #     """
-    #     data = (stockName, buyDate, quantity, buyPrice)
-    #     cursor.execute(query, data)
-    #     conn.commit()
-    #     conn.close()
-    
-    # Second version
     if request.method == 'POST':
-        print("POST received")
-        data = Stock(
-            stockName = request.form['stockName'].upper(),
-            buyDate = request.form['buyDate'],
-            quantity = int(request.form['quantity']),
-            buyPrice = request.form['buyPrice']
-        )
-        data.new_entry()
+        symbol = request.form['symbol'].upper()
+        category = request.form['category']
+        quantity = int(request.form['quantity'])
+        buy_price = float(request.form['buy_price'])
         
-        return redirect('/')
-    return render_template('add.html')
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        insert_query = """
+            INSERT INTO investments (user_id, symbol, category, quantity, buy_price)
+            VALUES (%s, %s, %s, %s, %s)
+        """
+        data = (session['user_id'], symbol, category, quantity, buy_price)
+        cursor.execute(insert_query, data)
+        conn.commit()
+        conn.close()
+        
+        return redirect(url_for('dashboard'))
+    return render_template('add_investment.html')
 
-@app.route('/delete', methods = ['POST'])
-def delete_stock():
-    id = request.form['id']
+@app.route('/delete/<int:id>')
+def delete_investment(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    delete_query = "DELETE FROM investments WHERE id = %s AND user_id = %s"
+    cursor.execute(delete_query, (id, session['user_id']))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('dashboard'))
+
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit_investment(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     
     if request.method == 'POST':
-        delete_query = "DELETE FROM portfolio WHERE id = %s"
-        cursor.execute(delete_query, (id,))
+        quantity = float(request.form['quantity'])
+        buy_price = float(request.form['buy_price'])
+        
+        update_query = """UPDATE investments SET quantity = %s, buy_price = %s
+                          WHERE id = %s AND user_id = %s"""
+        cursor.execute(update_query, (quantity, buy_price, id, session['user_id']))
         conn.commit()
+        
         conn.close()
-    return redirect('/')
-
-@app.route('/edit', methods=['Get', 'POST'])
-def edit_stock():
-    if request.method == 'GET':
-        stock_id = request.args.get('id')
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute("SELECT * FROM portfolio WHERE id = %s", (stock_id,))
-        stock = cursor.fetchone()
-        
-        cursor.close()
-        conn.close()
-        
-        return render_template('edit.html', stock=stock)
+        return redirect(url_for('dashboard'))
     
-    if request.method == 'POST':
-        stock_id = request.form.get('id')  
+    query = "SELECT * FROM investments WHERE id = %s AND user_id = %s"
+    cursor.execute(query, (id, session['user_id']))
+    investment = cursor.fetchone()
     
-        stockName = request.form['stockName'].upper()
-        buyDate = request.form['buyDate']
-        quantity = int(request.form['quantity'])
-        buyPrice = request.form['buyPrice']
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        update_query = """
-            UPDATE portfolio
-            SET stockName = %s, buyDate = %s, quantity = %s, buyPrice = %s
-            WHERE id = %s
-        """
-        data = (stockName, buyDate, quantity, buyPrice, stock_id)
-        cursor.execute(update_query, data)
-        conn.commit()
-        conn.close()
-
-        return redirect('/')
+    return render_template('edit_investment.html', investment=investment)
 
 if __name__ == '__main__':
     app.run(debug=True)

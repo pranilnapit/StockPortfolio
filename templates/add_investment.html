@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Add Investment</h2>
+    <form method="POST">
+        <label>Symbol:</label>
+        <input type="text" id="symbol" name="symbol"><br>
+        <label>Category:</label>
+        <input type="text" name="category"><br>
+        <label>Quantity:</label>
+        <input type="number" step="any" name="quantity"><br>
+        <label>Buy Price:</label>
+        <input type="number" step="any" name="buy_price"><br>
+        <button type="submit">Add Investment</button>
+    </form>
+{% endblock %}

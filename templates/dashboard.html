@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Dashboard</h2>
+<p><b>Total Portfolio Value:</b> ${{ total_value }}</p>
+<p><b>Total Cost Basis:</b> ${{ total_cost }}</p>
+<p><b>Profit/Loss:</b> ${{profit_loss}}</p>
+
+<table border="1">
+    <tr>
+        <th>Symbol</th>
+        <th>Category</th>
+        <th>Quantity</th>
+        <th>Buy Price</th>
+        <th>Live Price</th>
+        <th>Value</th>
+        <th>Profit/Loss</th>
+        <th>Actions</th>
+    </tr>
+    {% for inv in investments %}
+    <tr>
+        <td>{{ inv.symbol }}</td>
+        <td>{{ inv.category }}</td>
+        <td>{{ inv.quantity }}</td>
+        <td>${{ inv.buy_price }}</td>
+        <td>${{ inv.current_price }}</td>
+        <td>${{ inv.value }}</td>
+        <td>${{ inv.profit_loss }}</td>
+        <td>
+            <a href="{{ url_for('edit_investment', id=inv.id) }}">Edit</a> |
+            <a href="{{ url_for('delete_investment', id=inv.id) }}">Delete</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}
